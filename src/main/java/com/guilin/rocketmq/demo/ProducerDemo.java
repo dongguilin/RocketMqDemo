@@ -1,10 +1,14 @@
 package com.guilin.rocketmq.demo;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.rocketmq.client.exception.MQClientException;
 import com.alibaba.rocketmq.client.producer.DefaultMQProducer;
 import com.alibaba.rocketmq.client.producer.SendResult;
 import com.alibaba.rocketmq.common.message.Message;
+import org.apache.commons.io.FileUtils;
 
+import java.io.File;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -23,6 +27,9 @@ public class ProducerDemo {
         final DefaultMQProducer producer = new DefaultMQProducer("ProducerGroupName");
         producer.setNamesrvAddr("192.168.70.104:9876");
         producer.setInstanceName("Producer");
+        System.out.println(producer.getDefaultTopicQueueNums());
+        producer.setDefaultTopicQueueNums(10);
+        System.out.println(producer.getDefaultTopicQueueNums());
 
 
         /**
@@ -37,39 +44,75 @@ public class ProducerDemo {
          * 例如消息写入Master成功，但是Slave不成功，这种情况消息属于成功，但是对于个别应用如果对消息可靠性要求极高，<br>
          * 需要对这种情况做处理。另外，消息可能会存在发送失败的情况，失败重试由应用来处理。
          */
-        for (int i = 0; i < 10; i++) {
+//        for (int i = 0; i < 100; i++) {
             try {
-                {
-                    Message msg = new Message("TopicTest1",// topic
-                            "TagA",// tag
-                            "OrderID001",// key
-                            ("Hello MetaQA").getBytes());// body
-                    SendResult sendResult = producer.send(msg);
-                    System.out.println(sendResult);
+
+                String path = ProducerDemo.class.getClassLoader().getResource("ip").getPath();
+
+                Collection<File> collection = FileUtils.listFiles(new File(path), null, false);
+
+                int count = 0;
+
+                for (File file : collection) {
+                    String name = file.getName();
+                    List<String> list = FileUtils.readLines(file);
+                    for (String str : list) {
+                        String[] ips = str.split("\t");
+                        if(ips!=null && ips.length>0){
+                            for(String ip:ips){
+                                Map<String,Object> map = new HashMap<>();
+                                map.put("timestamp",System.currentTimeMillis());
+                                map.put("ip",ip);
+
+                                System.out.println(JSON.toJSONString(map));
+
+                                Message msg = new Message("rocketmqTopic",//topic
+                                        "TagA",//tag
+                                        name,//key
+                                        JSON.toJSONBytes(map)
+                                );
+                                SendResult sendResult = producer.send(msg);
+                                count++;
+                            }
+                        }
+                    }
                 }
 
-                {
-                    Message msg = new Message("TopicTest2",// topic
-                            "TagB",// tag
-                            "OrderID0034",// key
-                            ("Hello MetaQB").getBytes());// body
-                    SendResult sendResult = producer.send(msg);
-                    System.out.println(sendResult);
-                }
+                System.out.println(count);
 
-                {
-                    Message msg = new Message("TopicTest3",// topic
-                            "TagC",// tag
-                            "OrderID061",// key
-                            ("Hello MetaQC").getBytes());// body
-                    SendResult sendResult = producer.send(msg);
-                    System.out.println(sendResult);
-                }
+
+
+//                {
+//                    Message msg = new Message("rocketmqTopic",// topic
+//                            "TagA",// tag
+//                            "OrderID"+i,// key
+//                            ("Hello MetaQA").getBytes());// body
+//                    SendResult sendResult = producer.send(msg);
+//                    System.out.println(sendResult);
+//                }
+
+//                {
+//                    Message msg = new Message("TopicTest2",// topic
+//                            "TagB",// tag
+//                            "OrderID0034",// key
+//                            ("Hello MetaQB").getBytes());// body
+//                    SendResult sendResult = producer.send(msg);
+//                    System.out.println(sendResult);
+//                }
+//
+//                {
+//                    Message msg = new Message("TopicTest3",// topic
+//                            "TagC",// tag
+//                            "OrderID061",// key
+//                            ("Hello MetaQC").getBytes());// body
+//                    SendResult sendResult = producer.send(msg);
+//                    System.out.println(sendResult);
+//                }
             } catch (Exception e) {
                 e.printStackTrace();
             }
-            TimeUnit.MILLISECONDS.sleep(1000);
-        }
+//            TimeUnit.MILLISECONDS.sleep(1000);
+//        }
 
         /**
          * 应用退出时，要调用shutdown来清理资源，关闭网络连接，从MetaQ服务器上注销自己

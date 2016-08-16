@@ -25,19 +25,19 @@ public class PushConsumer {
          * 注意：ConsumerGroupName需要由应用来保证唯一
          */
         DefaultMQPushConsumer consumer = new DefaultMQPushConsumer(
-                "ConsumerGroupName");
+                "rocketG1");
         consumer.setNamesrvAddr("192.168.70.104:9876");
         consumer.setInstanceName("Consumber");
 
         /**
          * 订阅指定topic下tags分别等于TagA或TagC或TagD
          */
-        consumer.subscribe("TopicTest1", "TagA || TagC || TagD");
+//        consumer.subscribe("TopicTest1", "TagA || TagC || TagD");
         /**
          * 订阅指定topic下所有消息<br>
          * 注意：一个consumer对象可以订阅多个topic
          */
-        consumer.subscribe("TopicTest2", "*");
+        consumer.subscribe("rocketmqTopic", "TagA");
 
         consumer.registerMessageListener(new MessageListenerConcurrently() {
 
@@ -48,23 +48,24 @@ public class PushConsumer {
                         + " Receive New Messages: " + msgs.size());
 
                 MessageExt msg = msgs.get(0);
-                if (msg.getTopic().equals("TopicTest1")) {
-                    //执行TopicTest1的消费逻辑
-                    if (msg.getTags() != null && msg.getTags().equals("TagA")) {
-                        //执行TagA的消费
-                        System.out.println(new String(msg.getBody()));
-                    } else if (msg.getTags() != null
-                            && msg.getTags().equals("TagC")) {
-                        //执行TagC的消费
-                        System.out.println(new String(msg.getBody()));
-                    } else if (msg.getTags() != null
-                            && msg.getTags().equals("TagD")) {
-                        //执行TagD的消费
-                        System.out.println(new String(msg.getBody()));
-                    }
-                } else if (msg.getTopic().equals("TopicTest2")) {
-                    System.out.println(new String(msg.getBody()));
-                }
+                System.out.println(msg.getMsgId()+","+msg.getKeys());
+//                if (msg.getTopic().equals("TopicTest1")) {
+//                    //执行TopicTest1的消费逻辑
+//                    if (msg.getTags() != null && msg.getTags().equals("TagA")) {
+//                        //执行TagA的消费
+//                        System.out.println(new String(msg.getBody()));
+//                    } else if (msg.getTags() != null
+//                            && msg.getTags().equals("TagC")) {
+//                        //执行TagC的消费
+//                        System.out.println(new String(msg.getBody()));
+//                    } else if (msg.getTags() != null
+//                            && msg.getTags().equals("TagD")) {
+//                        //执行TagD的消费
+//                        System.out.println(new String(msg.getBody()));
+//                    }
+//                } else if (msg.getTopic().equals("TopicTest2")) {
+//                    System.out.println(new String(msg.getBody()));
+//                }
 
                 return ConsumeConcurrentlyStatus.CONSUME_SUCCESS;
 

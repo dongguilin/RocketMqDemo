@@ -10,17 +10,19 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <rocketmq.version>3.2.6</rocketmq.version>
+        <guava.version>18.0</guava.version>
     </properties>
     <dependencies>
         <dependency>
             <groupId>com.alibaba.rocketmq</groupId>
             <artifactId>rocketmq-client</artifactId>
-            <version>3.2.6</version>
+            <version>${rocketmq.version}</version>
         </dependency>
         <dependency>
             <groupId>com.alibaba.rocketmq</groupId>
             <artifactId>rocketmq-all</artifactId>
-            <version>3.2.6</version>
+            <version>${rocketmq.version}</version>
             <type>pom</type>
         </dependency>
         <dependency>
@@ -37,8 +39,19 @@
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
             <version>4.10</version>
-            <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
+            <version>2.4</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <version>${guava.version}</version>
+        </dependency>
+
     </dependencies>
 
 
